@@ -60,6 +60,7 @@ def create_overlapping_dataset(
         silence_time=1,
         speakers_number=2,
         overlapping=False,
+        only_overlapping=False,
         pattern='**/*.wav'
 ):
     '''
@@ -139,6 +140,8 @@ def create_overlapping_dataset(
                       (
                           create_overlapping_signal(speech[0][1], speech[1][1])
                       )[0:time]
+        elif only_overlapping:
+            example = (create_overlapping_signal(speech[0][1], speech[1][1]))[0:time]
 
         file_path = os.path.join(
             output_folder,
