@@ -9,7 +9,7 @@ import sys
 from enum import Enum
 import numpy as np
 import tensorflow as tf
-import src.helpers as helpers
+import signal_transformation.helpers as helpers
 
 
 class SpecFormat(Enum):

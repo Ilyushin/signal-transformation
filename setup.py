@@ -7,14 +7,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="signal_transformation",
-    version="1.0.2",
+    version="1.0.3",
     author="Eugene Ilyushin",
     author_email="eugene.ilyushin@gmail.com",
     description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
     long_description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
     long_description_content_type="text/markdown",
     url="https://github.com/Ilyushin/signal-transformation",
-    packages=setuptools.find_packages(),
+    packages=['signal_transformation'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
