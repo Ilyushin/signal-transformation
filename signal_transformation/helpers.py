@@ -71,6 +71,7 @@ def create_overlapping_dataset(
     :param silence_time: Time of silence which need to add between speakers
     :param speakers_number: How many speakers need to combine into one example
     :param overlapping: Mix some speakers into one period of time
+    :param only_overlapping:
     :param pattern:
     :return: Dictionary with information about examples
     '''
