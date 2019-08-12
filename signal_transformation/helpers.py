@@ -97,7 +97,7 @@ def create_overlapping_dataset(
             break
 
         counter += 1
-        helpers.print_progress(count=counter, total=num_files - 1)
+        print_progress(count=counter, total=num_files - 1)
 
         # Read wav files and put them into list as tuple (speaker_id, source data)
         speech = []
