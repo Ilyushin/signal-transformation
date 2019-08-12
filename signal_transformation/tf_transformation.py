@@ -229,12 +229,14 @@ def wav_to_tf_records(
             }
         )
 
-        spect = np.reshape(np.array(spect), (spect.shape[2], spect.shape[1], spect.shape[0]))
+        if not spec_format == SpecFormat.PCM:
+            spect = np.reshape(np.array(spect), (spect.shape[2], spect.shape[1], spect.shape[0]))
 
-        if spect.shape[0] < spec_shape[0] or spect.shape[1] < spec_shape[1]:
-            continue
+            if spect.shape[0] < spec_shape[0] or spect.shape[1] < spec_shape[1]:
+                continue
 
-        spect = spect[:spec_shape[0], :spec_shape[1], :spec_shape[2]]
+            spect = spect[:spec_shape[0], :spec_shape[1], :spec_shape[2]]
+
         # Create a dict with the data we want to save
         data = {
             'spectrogram': wrap_float(spect.flatten()),
