@@ -1,4 +1,17 @@
+import os
 import pydub
+from glob import glob
+
+
+def find_files(directory, pattern='**/*.wav'):
+    '''
+    Recursively finds all files matching the pattern
+    :param directory: Path to a directory with files
+    :param pattern: extension of the files
+    :return: Generator via files
+    '''
+    """."""
+    return glob(os.path.join(directory, pattern), recursive=True)
 
 
 def create_overlapping_signal(signal1, signal2, read=False):

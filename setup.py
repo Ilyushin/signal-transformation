@@ -1,3 +1,5 @@
+# pylint: disable=line-too-long, invalid-name, missing-docstring
+
 import setuptools
 
 with open("README.md", "r") as fh:
