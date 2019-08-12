@@ -1,8 +1,28 @@
 import os
+import sys
 from glob import glob
 from itertools import permutations
 import pickle
 from pydub import AudioSegment
+
+
+def print_progress(count, total):
+    '''
+    Print a progress in the terminal
+    :param count:
+    :param total:
+    :return:
+    '''
+    # Percentage completion.
+    pct_complete = float(count) / total
+
+    # Status-message.
+    # Note the \r which means the line should overwrite itself.
+    msg = "\r- Progress: {0:.1%}".format(pct_complete)
+
+    # Print it.
+    sys.stdout.write(msg)
+    sys.stdout.flush()
 
 
 def find_files(directory, pattern='**/*.wav'):
@@ -66,6 +86,8 @@ def create_overlapping_dataset(
 
     perms = permutations(files, speakers_number)
 
+    num_files = len(perms)
+
     result = {}
     time = speech_time * 1000
     silence = AudioSegment.silent(int(silence_time * 1000))
@@ -75,6 +97,7 @@ def create_overlapping_dataset(
             break
 
         counter += 1
+        helpers.print_progress(count=counter, total=num_files - 1)
 
         # Read wav files and put them into list as tuple (speaker_id, source data)
         speech = []

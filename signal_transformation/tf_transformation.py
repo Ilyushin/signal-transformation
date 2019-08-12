@@ -5,7 +5,6 @@ Transformation of a signal which based on TensorFlow
 '''
 
 import os
-import sys
 from enum import Enum
 import numpy as np
 import tensorflow as tf
@@ -21,25 +20,6 @@ class SpecFormat(Enum):
     MEL_SPEC = 3
     LOG_MEL_SPEC = 4
     MFCC = 5
-
-
-def print_progress(count, total):
-    '''
-    Print a progress in the terminal
-    :param count:
-    :param total:
-    :return:
-    '''
-    # Percentage completion.
-    pct_complete = float(count) / total
-
-    # Status-message.
-    # Note the \r which means the line should overwrite itself.
-    msg = "\r- Progress: {0:.1%}".format(pct_complete)
-
-    # Print it.
-    sys.stdout.write(msg)
-    sys.stdout.flush()
 
 
 def wav_to_pcm(wav_file, sample_rate=16000):
@@ -204,7 +184,7 @@ def wav_to_tf_records(
     i = 0
     for file_path in source_files:
         # Print the percentage-progress.
-        print_progress(count=i, total=num_files - 1)
+        helpers.print_progress(count=i, total=num_files - 1)
         i += 1
 
         # if i > 1000:
