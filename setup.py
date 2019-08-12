@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="signal-transformation",
-    version="1.0.0",
+    name="signal_transformation",
+    version="1.0.2",
     author="Eugene Ilyushin",
     author_email="eugene.ilyushin@gmail.com",
     description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
