@@ -86,7 +86,7 @@ def create_overlapping_dataset(
 
     perms = permutations(files, speakers_number)
 
-    num_files = len(perms)
+    num_files = len(list(perms))
 
     result = {}
     time = speech_time * 1000
