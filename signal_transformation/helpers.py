@@ -136,7 +136,7 @@ def create_overlapping_dataset(
             result[text_key][item[0]].append((10, time + 10))
 
         # Add piece of overlapping speech
-        if overlapping:
+        if overlapping and not only_overlapping:
             example = example + silence + \
                       (
                           create_overlapping_signal(speech[0][1], speech[1][1])
