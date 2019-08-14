@@ -39,7 +39,7 @@ def wav_to_pcm(wav_file, sample_rate=16000):
     return waveform
 
 
-def signal_to_stft(
+def pcm_to_stft(
         signals,
         frame_length=1024,
         frame_step=256,
@@ -169,7 +169,7 @@ def wav_to_tf_records(
     # `stfts` is a complex64 Tensor representing the Short-time Fourier Transform of
     # each signal in `signals`. Its shape is [batch_size, ?, fft_unique_bins]
     # where fft_unique_bins = fft_length // 2 + 1 = 513.
-    stfts = signal_to_stft(signals)
+    stfts = pcm_to_stft(signals)
 
     # Step2 : stfts->magnitude_spectrograms
     # An energy spectrogram is the magnitude of the complex-valued STFT.
@@ -232,7 +232,9 @@ def wav_to_tf_records(
         data = {
             'spectrogram': wrap_float(spect.flatten()),
             'label': wrap_int64(int(speaker_id.replace('id', ''))),
-            'shape': wrap_list_int64(list(spect.shape)),
+            'height': wrap_int64(spect.shape[1] if len(spect.shape) > 1 else 0),
+            'width': wrap_int64(spect.shape[2] if len(spect.shape) > 2 else 0),
+            'depth': wrap_int64(spect.shape[3] if len(spect.shape) > 3 else 0),
         }
         # Wrap the data as TensorFlow Features.
         feature = tf.train.Features(feature=data)
