@@ -1,6 +1,5 @@
 import os
 import sys
-from glob import glob
 from itertools import permutations
 import pickle
 from pydub import AudioSegment
@@ -32,7 +31,10 @@ def find_files(directory, pattern='**/*.wav'):
     :param pattern: extension of the files
     :return: Generator via files
     '''
-    return glob(os.path.join(directory, pattern), recursive=True)
+    for root, _, filenames in os.walk(directory):
+        for filename in filenames:
+            if filename.endswith(pattern):
+                yield os.path.join(root, filename)
 
 
 def create_overlapping_signal(signal1, signal2, read=False):

@@ -114,6 +114,15 @@ def wrap_int64(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 
+def wrap_list_int64(value):
+    '''
+    Return int64 list
+    :param value:
+    :return:
+    '''
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
+
+
 def wrap_float(value):
     """Returns a float_list from a float / double."""
     return tf.train.Feature(float_list=tf.train.FloatList(value=value))
@@ -123,7 +132,7 @@ def wrap_bytes(value):
     """Returns a bytes_list from a string / byte."""
     if isinstance(value, type(tf.constant(0))):
         value = value.numpy()  # BytesList won't unpack a string from an EagerTensor.
-    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=value))
 
 
 def wav_to_tf_records(
@@ -134,7 +143,8 @@ def wav_to_tf_records(
         spec_format=SpecFormat.PCM,
         num_mfcc=13,
         spec_shape=(300, 200, 1),
-        pattern='**/*.wav'
+        pattern='.wav',
+        num=1000
 ):
     '''
     Convert wav files to TFRecords
@@ -146,6 +156,7 @@ def wav_to_tf_records(
     :param num_mfcc:
     :param spec_shape:
     :param pattern:
+    :param num: How many files need to parse
     :return:
     '''
 
@@ -187,8 +198,8 @@ def wav_to_tf_records(
         helpers.print_progress(count=i, total=num_files - 1)
         i += 1
 
-        # if i > 1000:
-        #     break
+        if i > num:
+            break
 
         speaker_id = file_path.split('/')[-3]
         # Run the computation graph and save the png encoded image to a file
@@ -220,7 +231,8 @@ def wav_to_tf_records(
         # Create a dict with the data we want to save
         data = {
             'spectrogram': wrap_float(spect.flatten()),
-            'label': wrap_int64(int(speaker_id.replace('id', '')))
+            'label': wrap_int64(int(speaker_id.replace('id', ''))),
+            'shape': wrap_list_int64(list(spect.shape)),
         }
         # Wrap the data as TensorFlow Features.
         feature = tf.train.Features(feature=data)
