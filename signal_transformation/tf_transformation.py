@@ -130,14 +130,13 @@ def wrap_float(value):
 
 def wrap_bytes(value):
     """Returns a bytes_list from a string / byte."""
-    if isinstance(value, type(tf.constant(0))):
-        value = value.numpy()  # BytesList won't unpack a string from an EagerTensor.
-    return tf.train.Feature(bytes_list=tf.train.BytesList(value=value))
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 
 def wav_to_tf_records(
         sess,
         audio_path=None,
+        label=None,
         sample_rate=16000,
         out_path=None,
         spec_format=SpecFormat.PCM,
@@ -150,6 +149,7 @@ def wav_to_tf_records(
     Convert wav files to TFRecords
     :param sess: TF session
     :param audio_path: Path to wav files
+    :param label:
     :param sample_rate:
     :param out_path: Path to
     :param spec_format: Need a format of a spectrogram
@@ -191,7 +191,42 @@ def wav_to_tf_records(
     source_files = [item for item in helpers.find_files(audio_path, pattern=pattern)]
     num_files = len(source_files)
 
+    # Find smallest shape
+    print('Started looking for smallest shape')
+    i = 0
+    smallest_shape = ()
+    for file_path in source_files:
+        # Print the percentage-progress.
+        helpers.print_progress(count=i, total=num_files - 1)
+        i += 1
+
+        if i > num:
+            break
+
+        # Run the computation graph and save the png encoded image to a file
+        format_op = signals
+        if spec_format == SpecFormat.STFT:
+            format_op = stfts
+        elif spec_format == SpecFormat.MEL_SPEC:
+            format_op = mel_spectrograms
+        elif spec_format == SpecFormat.LOG_MEL_SPEC:
+            format_op = log_mel_spectrograms
+        elif format_op == SpecFormat.MFCC:
+            format_op = spectrogram
+
+        spect = sess.run(
+            format_op,
+            feed_dict={
+                wav_file: file_path
+            }
+        )
+
+        if spect.shape < smallest_shape or len(smallest_shape) == 0:
+            smallest_shape = spect.shape
+
     # Iterate over all the image-paths and class-labels.
+    print()
+    print('Started parsing to TFRecord')
     i = 0
     for file_path in source_files:
         # Print the percentage-progress.
@@ -220,6 +255,8 @@ def wav_to_tf_records(
             }
         )
 
+        spect = np.resize(np.array(spect), smallest_shape)
+
         if not spec_format == SpecFormat.PCM:
             spect = np.reshape(np.array(spect), (spect.shape[2], spect.shape[1], spect.shape[0]))
 
@@ -231,7 +268,9 @@ def wav_to_tf_records(
         # Create a dict with the data we want to save
         data = {
             'spectrogram': wrap_float(spect.flatten()),
-            'label': wrap_int64(int(speaker_id.replace('id', ''))),
+            'label': wrap_bytes(
+                (str(label) if not label == None else str(speaker_id)).encode('utf-8')
+            ),
             'height': wrap_int64(spect.shape[1] if len(spect.shape) > 1 else 0),
             'width': wrap_int64(spect.shape[2] if len(spect.shape) > 2 else 0),
             'depth': wrap_int64(spect.shape[3] if len(spect.shape) > 3 else 0),

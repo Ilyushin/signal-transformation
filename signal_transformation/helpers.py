@@ -24,7 +24,7 @@ def print_progress(count, total):
     sys.stdout.flush()
 
 
-def find_files(directory, pattern='**/*.wav'):
+def find_files(directory, pattern='.wav'):
     '''
     Recursively finds all files matching the pattern
     :param directory: Path to a directory with files
@@ -63,7 +63,7 @@ def create_overlapping_dataset(
         speakers_number=2,
         overlapping=False,
         only_overlapping=False,
-        pattern='**/*.wav'
+        pattern='.wav'
 ):
     '''
     :param input_folder:
