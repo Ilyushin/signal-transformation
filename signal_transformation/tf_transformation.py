@@ -143,7 +143,7 @@ def wav_to_tf_records(
         num_mfcc=13,
         spec_shape=(300, 200, 1),
         pattern='.wav',
-        num=1000
+        size=None
 ):
     '''
     Convert wav files to TFRecords
@@ -156,7 +156,7 @@ def wav_to_tf_records(
     :param num_mfcc:
     :param spec_shape:
     :param pattern:
-    :param num: How many files need to parse
+    :param size: How many files need to parse
     :return:
     '''
 
@@ -200,7 +200,7 @@ def wav_to_tf_records(
         helpers.print_progress(count=i, total=num_files - 1)
         i += 1
 
-        if i > num:
+        if size and i > size:
             break
 
         # Run the computation graph and save the png encoded image to a file
@@ -233,7 +233,7 @@ def wav_to_tf_records(
         helpers.print_progress(count=i, total=num_files - 1)
         i += 1
 
-        if i > num:
+        if size and i > size:
             break
 
         speaker_id = file_path.split('/')[-3]

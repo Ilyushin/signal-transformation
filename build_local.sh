@@ -3,4 +3,5 @@
 
 rm -rf ./signal_transformation.egg-info ./dist ./build
 python3 setup.py sdist bdist_wheel
-python3 -m twine upload dist/*
+pip3 uninstall -y signal-transformation
+pip3 install ./dist/signal_transformation-1.0.17-py3-none-any.whl
