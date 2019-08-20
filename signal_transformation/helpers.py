@@ -158,3 +158,18 @@ def create_overlapping_dataset(
             pickle.dump(result, file_result, pickle.HIGHEST_PROTOCOL)
 
     return result
+
+
+def mp3_to_wav(input_file, output_file):
+    if not input_file:
+        print('Path to an input file is empty')
+        return
+
+    if not output_file:
+        print('Path to an output file is empty')
+        return
+
+    try:
+        AudioSegment.from_mp3(input_file).export(output_file, format='wav')
+    except:
+        print('Can not transform mp3 to wav!')
