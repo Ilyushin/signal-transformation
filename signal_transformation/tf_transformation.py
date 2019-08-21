@@ -55,7 +55,7 @@ def pcm_to_stft(
     :param pad_end:
     :return: STFT
     '''
-    stft = tf.contrib.signal.stft(
+    stft = tf.signal.stft(
         signals,
         frame_length=frame_length,
         frame_step=frame_step,
@@ -71,24 +71,21 @@ def stft_to_mel_spec(
         sample_rate=16000,
         fmin=80,
         fmax=8000,
-        spec_shape=(300, 200, 1)
+        num_mel_bins=80
 ):
     '''
     Transfrom STFT to a mel spectrogram
     :param stfts:
     :param fmin:
     :param fmax:
+    :param num_mel_bins:
     :return:
     '''
     magnitude_spectrograms = tf.abs(stfts)
-
     num_spectrogram_bins = magnitude_spectrograms.shape[-1].value
+    num_mel_bins = num_mel_bins
 
-    # num_spectrogram_bins = 300
-
-    num_mel_bins = spec_shape[0]
-
-    linear_to_mel_weight_matrix = tf.contrib.signal.linear_to_mel_weight_matrix(
+    linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
         num_mel_bins,
         num_spectrogram_bins,
         sample_rate,
@@ -96,13 +93,29 @@ def stft_to_mel_spec(
         fmax
     )
 
-    mel_spectrograms = tf.tensordot(
+    mel_spec = tf.tensordot(
         magnitude_spectrograms,
         linear_to_mel_weight_matrix,
         1
     )
 
-    return mel_spectrograms
+    return mel_spec
+
+
+def mel_spec_to_mfcc(mel_spec, num_mfccs=13, log_offset=1e-6):
+    '''
+    Return mfcc
+    :param mel_spec:
+    :param num_mfccs:
+    :return:
+    '''
+
+    log_mel_spec = tf.log(mel_spec + log_offset)
+
+    mfcc = tf.signal.mfccs_from_log_mel_spectrograms(
+        log_mel_spec)[..., :num_mfccs]
+
+    return mfcc
 
 
 def wrap_int64(value):
