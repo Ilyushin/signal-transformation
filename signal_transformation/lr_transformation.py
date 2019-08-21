@@ -11,7 +11,7 @@ def wav_to_pcm(wav_file, sample_rate=16000):
     :param sample_rate:
     :return: PCM
     '''
-    waveform = librosa.core.load(
+    waveform, _ = librosa.core.load(
         wav_file,
         sr=sample_rate
     )
@@ -33,7 +33,7 @@ def pcm_to_stft(
     :param win_length:
     :return: STFT
     '''
-    stft = librosa.stft(
+    stft = librosa.core.stft(
         waveform,
         n_fft=n_fft,
         hop_length=hop_length,
