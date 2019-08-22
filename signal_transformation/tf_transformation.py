@@ -205,37 +205,37 @@ def wav_to_tf_records(
     num_files = len(source_files)
 
     # Find smallest shape
-    print('Started looking for smallest shape')
-    i = 0
-    smallest_shape = ()
-    for file_path in source_files:
-        # Print the percentage-progress.
-        helpers.print_progress(count=i, total=num_files - 1)
-        i += 1
-
-        if size and i > size:
-            break
-
-        # Run the computation graph and save the png encoded image to a file
-        format_op = signals
-        if spec_format == SpecFormat.STFT:
-            format_op = stfts
-        elif spec_format == SpecFormat.MEL_SPEC:
-            format_op = mel_spectrograms
-        elif spec_format == SpecFormat.LOG_MEL_SPEC:
-            format_op = log_mel_spectrograms
-        elif format_op == SpecFormat.MFCC:
-            format_op = spectrogram
-
-        spect = sess.run(
-            format_op,
-            feed_dict={
-                wav_file: file_path
-            }
-        )
-
-        if spect.shape < smallest_shape or len(smallest_shape) == 0:
-            smallest_shape = spect.shape
+    # print('Started looking for smallest shape')
+    # i = 0
+    # smallest_shape = ()
+    # for file_path in source_files:
+    #     # Print the percentage-progress.
+    #     helpers.print_progress(count=i, total=num_files - 1)
+    #     i += 1
+    #
+    #     if size and i > size:
+    #         break
+    #
+    #     # Run the computation graph and save the png encoded image to a file
+    #     format_op = signals
+    #     if spec_format == SpecFormat.STFT:
+    #         format_op = stfts
+    #     elif spec_format == SpecFormat.MEL_SPEC:
+    #         format_op = mel_spectrograms
+    #     elif spec_format == SpecFormat.LOG_MEL_SPEC:
+    #         format_op = log_mel_spectrograms
+    #     elif format_op == SpecFormat.MFCC:
+    #         format_op = spectrogram
+    #
+    #     spect = sess.run(
+    #         format_op,
+    #         feed_dict={
+    #             wav_file: file_path
+    #         }
+    #     )
+    #
+    #     if spect.shape < smallest_shape or len(smallest_shape) == 0:
+    #         smallest_shape = spect.shape
 
     # Iterate over all the image-paths and class-labels.
     print()
@@ -268,7 +268,7 @@ def wav_to_tf_records(
             }
         )
 
-        spect = np.resize(np.array(spect), smallest_shape)
+        # spect = np.resize(np.array(spect), smallest_shape)
 
         if not spec_format == SpecFormat.PCM:
             spect = np.reshape(np.array(spect), (spect.shape[2], spect.shape[1], spect.shape[0]))

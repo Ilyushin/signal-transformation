@@ -160,7 +160,7 @@ def create_overlapping_dataset(
     return result
 
 
-def mp3_to_wav(input_file, output_file):
+def mp3_to_wav(input_file, output_file, channels=1):
     if not input_file:
         print('Path to an input file is empty')
         return
@@ -170,8 +170,10 @@ def mp3_to_wav(input_file, output_file):
         return
 
     try:
-        AudioSegment.from_mp3(
-            input_file
+        AudioSegment.from_file(
+            input_file,
+            format="mp3",
+            channels=channels
         ).export(
             output_file,
             format='wav'

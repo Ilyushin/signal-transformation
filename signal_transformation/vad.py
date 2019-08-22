@@ -1,12 +1,13 @@
 import collections
 import contextlib
-import sys, os
+import sys
+import os
 import wave
 
 import webrtcvad
 
 
-def read_wave(path):
+def _read_wave(path):
     """Reads a .wav file.
 
     Takes the path, and returns (PCM audio data, sample rate).
@@ -22,7 +23,7 @@ def read_wave(path):
         return pcm_data, sample_rate
 
 
-def write_wave(path, audio, sample_rate):
+def _write_wave(path, audio, sample_rate):
     """Writes a .wav file.
 
     Takes path, PCM audio data, and sample rate.
@@ -34,7 +35,7 @@ def write_wave(path, audio, sample_rate):
         wf.writeframes(audio)
 
 
-class Frame(object):
+class _Frame(object):
     """Represents a "frame" of audio data."""
 
     def __init__(self, bytes, timestamp, duration):
@@ -43,7 +44,7 @@ class Frame(object):
         self.duration = duration
 
 
-def frame_generator(frame_duration_ms, audio, sample_rate):
+def _frame_generator(frame_duration_ms, audio, sample_rate):
     """Generates audio frames from PCM audio data.
 
     Takes the desired frame duration in milliseconds, the PCM data, and
@@ -56,7 +57,7 @@ def frame_generator(frame_duration_ms, audio, sample_rate):
     timestamp = 0.0
     duration = (float(n) / sample_rate) / 2.0
     while offset + n < len(audio):
-        yield Frame(audio[offset:offset + n], timestamp, duration)
+        yield _Frame(audio[offset:offset + n], timestamp, duration)
         timestamp += duration
         offset += n
 
@@ -99,7 +100,7 @@ def vad_collector(sample_rate, frame_duration_ms,
     for frame in frames:
         is_speech = vad.is_speech(frame.bytes, sample_rate)
 
-        sys.stdout.write('1' if is_speech else '0')
+        # sys.stdout.write('1' if is_speech else '0')
         if not triggered:
             ring_buffer.append((frame, is_speech))
             num_voiced = len([f for f, speech in ring_buffer if speech])
@@ -108,7 +109,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             # TRIGGERED state.
             if num_voiced > 0.9 * ring_buffer.maxlen:
                 triggered = True
-                sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
+                # sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
                 # We want to yield all the audio we see from now until
                 # we are NOTTRIGGERED, but we have to start with the
                 # audio that's already in the ring buffer.
@@ -125,14 +126,14 @@ def vad_collector(sample_rate, frame_duration_ms,
             # unvoiced, then enter NOTTRIGGERED and yield whatever
             # audio we've collected.
             if num_unvoiced > 0.9 * ring_buffer.maxlen:
-                sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+                # sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
                 triggered = False
                 yield b''.join([f.bytes for f in voiced_frames])
                 ring_buffer.clear()
                 voiced_frames = []
-    if triggered:
-        sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
-    sys.stdout.write('\n')
+    # if triggered:
+    #     sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+    # sys.stdout.write('\n')
     # If we have any leftover voiced audio when we run out of input,
     # yield it.
     if voiced_frames:
@@ -140,15 +141,16 @@ def vad_collector(sample_rate, frame_duration_ms,
 
 
 def apply_vad(input_file, output_file, mode=0):
-    audio, sample_rate = read_wave(input_file)
+    audio, sample_rate = _read_wave(input_file)
     vad = webrtcvad.Vad(mode)
-    frames = frame_generator(30, audio, sample_rate)
+    frames = _frame_generator(30, audio, sample_rate)
     frames = list(frames)
     segments = vad_collector(sample_rate, 30, 300, vad, frames)
 
     for i, segment in enumerate(segments):
         try:
-            write_wave(output_file, segment, sample_rate)
-            print('Finished vad - ', input_file, ' -> ', output_file)
+            _write_wave(output_file, segment, sample_rate)
         except:
             print('Can not apply vad - ', input_file, ' -> ', output_file)
+
+    print('Finished vad - ', input_file, ' -> ', output_file)
