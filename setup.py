@@ -26,6 +26,7 @@ setuptools.setup(
         'tensorflow',
         'pylint',
         'librosa',
-        'ffmpeg'
+        'ffmpeg',
+        'webrtcvad'
     ],
 )
