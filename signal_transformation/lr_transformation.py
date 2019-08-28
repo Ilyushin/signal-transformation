@@ -16,7 +16,9 @@ def wav_to_pcm(wav_file, sample_rate=16000):
         sr=sample_rate
     )
 
-    return librosa.effects.trim(waveform)
+    y_trimmed, _ = librosa.effects.trim(waveform)
+
+    return y_trimmed
 
 
 def pcm_to_stft(
