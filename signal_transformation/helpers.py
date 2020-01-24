@@ -24,7 +24,7 @@ def print_progress(count, total):
     sys.stdout.flush()
 
 
-def find_files(directory, pattern='.wav'):
+def find_files(directory, pattern=['.wav']):
     '''
     Recursively finds all files matching the pattern
     :param directory: Path to a directory with files
@@ -33,8 +33,9 @@ def find_files(directory, pattern='.wav'):
     '''
     for root, _, filenames in os.walk(directory):
         for filename in filenames:
-            if filename.endswith(pattern):
-                yield os.path.join(root, filename)
+            for exten in pattern:
+                if filename.endswith(exten):
+                    yield os.path.join(root, filename)
 
 
 def create_overlapping_signal(signal1, signal2, read=False):
