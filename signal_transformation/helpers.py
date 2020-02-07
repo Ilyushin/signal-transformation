@@ -33,9 +33,12 @@ def find_files(directory, pattern=['.wav']):
     '''
     for root, _, filenames in os.walk(directory):
         for filename in filenames:
-            for exten in pattern:
-                if filename.endswith(exten):
-                    yield os.path.join(root, filename)
+            if len(pattern):
+                for exten in pattern:
+                    if filename.endswith(exten):
+                        yield os.path.join(root, filename)
+            else:
+                yield os.path.join(root, filename)
 
 
 def create_overlapping_signal(signal1, signal2, read=False):
