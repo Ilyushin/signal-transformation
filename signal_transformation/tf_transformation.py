@@ -22,18 +22,15 @@ class SpecFormat(Enum):
     MFCC = 5
 
 
-def wav_to_pcm(wav_file, sample_rate=16000):
+def wav_to_pcm(wav_file):
     '''
     Transform a waf file to PCM
     :param wav_file:Path to a wav file
     :return: PCM
     '''
-    audio_binary = tf.read_file(wav_file)
-    waveform = tf.contrib.ffmpeg.decode_audio(
-        audio_binary,
-        file_format='wav',
-        samples_per_second=sample_rate,
-        channel_count=1
+    waveform = tf.audio.decode_wav(
+        wav_file,
+        desired_channels=1
     )
 
     return waveform
@@ -76,6 +73,7 @@ def stft_to_mel_spec(
     '''
     Transfrom STFT to a mel spectrogram
     :param stfts:
+    :param sample_rate:
     :param fmin:
     :param fmax:
     :param num_mel_bins:
@@ -107,10 +105,11 @@ def mel_spec_to_mfcc(mel_spec, num_mfccs=13, log_offset=1e-6):
     Return mfcc
     :param mel_spec:
     :param num_mfccs:
+    :param log_offset:
     :return:
     '''
 
-    log_mel_spec = tf.log(mel_spec + log_offset)
+    log_mel_spec = tf.math.log(mel_spec + log_offset)
 
     mfcc = tf.signal.mfccs_from_log_mel_spectrograms(
         log_mel_spec)[..., :num_mfccs]
@@ -174,7 +173,7 @@ def wav_to_tf_records(
     '''
 
     # Wav file name
-    wav_file = tf.placeholder(tf.string)
+    wav_file = tf.compat.v1.placeholder(tf.string)
 
     signals = tf.reshape(wav_to_pcm(wav_file, sample_rate=sample_rate), [1, -1])
 
@@ -193,49 +192,16 @@ def wav_to_tf_records(
 
     # Step 4 : mel_spectrograms->log_mel_spectrograms
     log_offset = 1e-6
-    log_mel_spectrograms = tf.log(mel_spectrograms + log_offset)
+    log_mel_spectrograms = tf.math.log(mel_spectrograms + log_offset)
 
     # Step 5 : log_mel_spectrograms->mfccs
     # Keep the first `num_mfccs` MFCCs.
-    spectrogram = tf.contrib.signal.mfccs_from_log_mel_spectrograms(
+    spectrogram = tf.signal.mfccs_from_log_mel_spectrograms(
         log_mel_spectrograms)[..., :num_mfcc]
 
     # Number of images. Used when printing the progress.
     source_files = [item for item in helpers.find_files(audio_path, pattern=pattern)]
     num_files = len(source_files)
-
-    # Find smallest shape
-    # print('Started looking for smallest shape')
-    # i = 0
-    # smallest_shape = ()
-    # for file_path in source_files:
-    #     # Print the percentage-progress.
-    #     helpers.print_progress(count=i, total=num_files - 1)
-    #     i += 1
-    #
-    #     if size and i > size:
-    #         break
-    #
-    #     # Run the computation graph and save the png encoded image to a file
-    #     format_op = signals
-    #     if spec_format == SpecFormat.STFT:
-    #         format_op = stfts
-    #     elif spec_format == SpecFormat.MEL_SPEC:
-    #         format_op = mel_spectrograms
-    #     elif spec_format == SpecFormat.LOG_MEL_SPEC:
-    #         format_op = log_mel_spectrograms
-    #     elif format_op == SpecFormat.MFCC:
-    #         format_op = spectrogram
-    #
-    #     spect = sess.run(
-    #         format_op,
-    #         feed_dict={
-    #             wav_file: file_path
-    #         }
-    #     )
-    #
-    #     if spect.shape < smallest_shape or len(smallest_shape) == 0:
-    #         smallest_shape = spect.shape
 
     # Iterate over all the image-paths and class-labels.
     print()
@@ -282,7 +248,7 @@ def wav_to_tf_records(
         data = {
             'spectrogram': wrap_float(spect.flatten()),
             'label': wrap_bytes(
-                (str(label) if not label == None else str(speaker_id)).encode('utf-8')
+                (str(label) if label is not None else str(speaker_id)).encode('utf-8')
             ),
             'height': wrap_int64(spect.shape[1] if len(spect.shape) > 1 else 0),
             'width': wrap_int64(spect.shape[2] if len(spect.shape) > 2 else 0),

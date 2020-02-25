@@ -184,6 +184,3 @@ def mp3_to_wav(input_file, output_file, channels=1):
         )
     except:
         print('Can not transform mp3 to wav!')
-
-
-
