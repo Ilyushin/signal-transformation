@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="signal_transformation",
-    version="2.0.1",
+    version="2.0.2",
     author="Eugene Ilyushin",
     author_email="eugene.ilyushin@gmail.com",
     description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
@@ -21,7 +21,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'tensorflow==2.0.0',
+        'tensorflow==2.1.0',
         'numpy',
         'pydub',
         'pylint',
