@@ -41,6 +41,11 @@ def find_files(directory, pattern=['.wav']):
                 yield os.path.join(root, filename)
 
 
+def create_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+
 def create_overlapping_signal(signal1, signal2, read=False):
     '''
     Mix two signals in one

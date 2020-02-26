@@ -28,8 +28,9 @@ def wav_to_pcm(wav_file):
     :param wav_file:Path to a wav file
     :return: PCM
     '''
+    raw_audio = tf.io.read_file(wav_file)
     waveform = tf.audio.decode_wav(
-        wav_file,
+        raw_audio,
         desired_channels=1
     )
 
@@ -80,8 +81,8 @@ def stft_to_mel_spec(
     :return:
     '''
     magnitude_spectrograms = tf.abs(stfts)
-    num_spectrogram_bins = magnitude_spectrograms.shape[-1].value
-    num_mel_bins = num_mel_bins
+    num_spectrogram_bins = magnitude_spectrograms.shape[-1]
+    # num_mel_bins = num_mel_bins
 
     linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
         num_mel_bins,
@@ -146,7 +147,6 @@ def wrap_bytes(value):
 
 
 def wav_to_tf_records(
-        sess,
         audio_path=None,
         label=None,
         sample_rate=16000,
@@ -154,12 +154,11 @@ def wav_to_tf_records(
         spec_format=SpecFormat.PCM,
         num_mfcc=13,
         spec_shape=(300, 200, 1),
-        pattern='.wav',
+        pattern=['.wav', ],
         size=None
 ):
     '''
     Convert wav files to TFRecords
-    :param sess: TF session
     :param audio_path: Path to wav files
     :param label:
     :param sample_rate:
@@ -171,33 +170,6 @@ def wav_to_tf_records(
     :param size: How many files need to parse
     :return:
     '''
-
-    # Wav file name
-    wav_file = tf.compat.v1.placeholder(tf.string)
-
-    signals = tf.reshape(wav_to_pcm(wav_file, sample_rate=sample_rate), [1, -1])
-
-    # Step 1 : signals->stfts
-    # `stfts` is a complex64 Tensor representing the Short-time Fourier Transform of
-    # each signal in `signals`. Its shape is [batch_size, ?, fft_unique_bins]
-    # where fft_unique_bins = fft_length // 2 + 1 = 513.
-    stfts = pcm_to_stft(signals)
-
-    # Step2 : stfts->magnitude_spectrograms
-    # An energy spectrogram is the magnitude of the complex-valued STFT.
-    # A float32 Tensor of shape [batch_size, ?, 513].
-    # Step 3 : magnitude_spectrograms->mel_spectrograms
-    # Warp the linear-scale, magnitude spectrograms into the mel-scale.
-    mel_spectrograms = stft_to_mel_spec(stfts)
-
-    # Step 4 : mel_spectrograms->log_mel_spectrograms
-    log_offset = 1e-6
-    log_mel_spectrograms = tf.math.log(mel_spectrograms + log_offset)
-
-    # Step 5 : log_mel_spectrograms->mfccs
-    # Keep the first `num_mfccs` MFCCs.
-    spectrogram = tf.signal.mfccs_from_log_mel_spectrograms(
-        log_mel_spectrograms)[..., :num_mfcc]
 
     # Number of images. Used when printing the progress.
     source_files = [item for item in helpers.find_files(audio_path, pattern=pattern)]
@@ -216,28 +188,45 @@ def wav_to_tf_records(
             break
 
         speaker_id = file_path.split('/')[-3]
-        # Run the computation graph and save the png encoded image to a file
-        format_op = signals
+        signals = tf.reshape(wav_to_pcm(file_path).audio, [1, -1])
+
+        # Step 1 : signals->stfts
+        # `stfts` is a complex64 Tensor representing the Short-time Fourier Transform of
+        # each signal in `signals`. Its shape is [batch_size, ?, fft_unique_bins]
+        # where fft_unique_bins = fft_length // 2 + 1 = 513.
+        stfts = pcm_to_stft(signals)
+
+        # Step2 : stfts->magnitude_spectrograms
+        # An energy spectrogram is the magnitude of the complex-valued STFT.
+        # A float32 Tensor of shape [batch_size, ?, 513].
+        # Step 3 : magnitude_spectrograms->mel_spectrograms
+        # Warp the linear-scale, magnitude spectrograms into the mel-scale.
+        mel_spectrograms = stft_to_mel_spec(stfts)
+
+        # Step 4 : mel_spectrograms->log_mel_spectrograms
+        log_offset = 1e-6
+        log_mel_spectrograms = tf.math.log(mel_spectrograms + log_offset)
+
+        # Step 5 : log_mel_spectrograms->mfccs
+        # Keep the first `num_mfccs` MFCCs.
+        spectrogram = tf.signal.mfccs_from_log_mel_spectrograms(
+            log_mel_spectrograms)[..., :num_mfcc]
+
+        spect = signals
         if spec_format == SpecFormat.STFT:
-            format_op = stfts
+            spect = stfts
         elif spec_format == SpecFormat.MEL_SPEC:
-            format_op = mel_spectrograms
+            spect = mel_spectrograms
         elif spec_format == SpecFormat.LOG_MEL_SPEC:
-            format_op = log_mel_spectrograms
-        elif format_op == SpecFormat.MFCC:
-            format_op = spectrogram
-
-        spect = sess.run(
-            format_op,
-            feed_dict={
-                wav_file: file_path
-            }
-        )
-
-        # spect = np.resize(np.array(spect), smallest_shape)
+            spect = log_mel_spectrograms
+        elif spec_format == SpecFormat.MFCC:
+            spect = spectrogram
 
         if not spec_format == SpecFormat.PCM:
-            spect = np.reshape(np.array(spect), (spect.shape[2], spect.shape[1], spect.shape[0]))
+            x = max(spect.shape)
+            z = min(spect.shape)
+            y = set(spect.shape).difference(set([x, z])).pop()
+            spect = np.reshape(np.array(spect), (x, y, z))
 
             if spect.shape[0] < spec_shape[0] or spect.shape[1] < spec_shape[1]:
                 continue
@@ -247,12 +236,10 @@ def wav_to_tf_records(
         # Create a dict with the data we want to save
         data = {
             'spectrogram': wrap_float(spect.flatten()),
-            'label': wrap_bytes(
-                (str(label) if label is not None else str(speaker_id)).encode('utf-8')
-            ),
-            'height': wrap_int64(spect.shape[1] if len(spect.shape) > 1 else 0),
-            'width': wrap_int64(spect.shape[2] if len(spect.shape) > 2 else 0),
-            'depth': wrap_int64(spect.shape[3] if len(spect.shape) > 3 else 0),
+            'label': wrap_int64(int(speaker_id.replace('id', ''))),
+            'height': wrap_int64(spect.shape[0] if len(spect.shape) >= 1 else 0),
+            'width': wrap_int64(spect.shape[1] if len(spect.shape) >= 2 else 0),
+            'depth': wrap_int64(spect.shape[2] if len(spect.shape) >= 3 else 0)
         }
         # Wrap the data as TensorFlow Features.
         feature = tf.train.Features(feature=data)
@@ -264,8 +251,7 @@ def wav_to_tf_records(
         # Open a TFRecordWriter for the output-file.
         result_file = file_path.replace(audio_path, out_path).replace('.wav', '.tfrecords')
         dir_path = '/'.join(result_file.split('/')[:len(result_file.split('/')) - 1])
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
+        helpers.create_dir(dir_path)
 
         with tf.io.TFRecordWriter(result_file) as writer:
             writer.write(serialized)
