@@ -223,9 +223,15 @@ def wav_to_tf_records(
             spect = spectrogram
 
         if not spec_format == SpecFormat.PCM:
+            x, y, z = None, None, None
             x = max(spect.shape)
-            z = min(spect.shape)
-            y = set(spect.shape).difference(set([x, z])).pop()
+            if len(spect.shape) > 1:
+                z = min(spect.shape)
+
+            if len(spect.shape) == 3:
+                set_dif = set(spect.shape).difference(set([x, z]))
+                y = set_dif.pop() if len(set_dif) else x
+
             spect = np.reshape(np.array(spect), (x, y, z))
 
             if spect.shape[0] < spec_shape[0] or spect.shape[1] < spec_shape[1]:
