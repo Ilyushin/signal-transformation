@@ -146,6 +146,18 @@ def wrap_bytes(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 
+def crop_pcm(value, sample_rate=16000, time=5):
+    """Returns a cropped part of PCM."""
+    start = sample_rate
+    end = time * sample_rate + start
+
+    contain_time = int(value.shape[0]/sample_rate)
+    if time > contain_time or end > value.shape[0]:
+        return value
+
+    return value[start:end]
+
+
 def wav_to_tf_records(
         audio_path=None,
         label=None,
@@ -188,7 +200,9 @@ def wav_to_tf_records(
             break
 
         speaker_id = file_path.split('/')[-3]
-        signals = tf.reshape(wav_to_pcm(file_path).audio, [1, -1])
+        pcm = wav_to_pcm(file_path).audio
+        pcm = crop_pcm(pcm, sample_rate=16000)
+        signals = tf.reshape(pcm, [1, -1])
 
         # Step 1 : signals->stfts
         # `stfts` is a complex64 Tensor representing the Short-time Fourier Transform of
@@ -212,7 +226,7 @@ def wav_to_tf_records(
         spectrogram = tf.signal.mfccs_from_log_mel_spectrograms(
             log_mel_spectrograms)[..., :num_mfcc]
 
-        spect = signals
+        spect = signals.numpy()
         if spec_format == SpecFormat.STFT:
             spect = stfts
         elif spec_format == SpecFormat.MEL_SPEC:
