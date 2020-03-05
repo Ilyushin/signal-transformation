@@ -275,3 +275,104 @@ def wav_to_tf_records(
 
         with tf.io.TFRecordWriter(result_file) as writer:
             writer.write(serialized)
+
+
+def wav_to_numpy_arrays(
+        audio_path=None,
+        label=None,
+        sample_rate=16000,
+        out_path=None,
+        spec_format=SpecFormat.PCM,
+        num_mfcc=13,
+        spec_shape=(300, 200, 1),
+        pattern=['.wav', ],
+        size=None
+):
+    '''
+    Convert wav files to TFRecords
+    :param audio_path: Path to wav files
+    :param label:
+    :param sample_rate:
+    :param out_path: Path to
+    :param spec_format: Need a format of a spectrogram
+    :param num_mfcc:
+    :param spec_shape:
+    :param pattern:
+    :param size: How many files need to parse
+    :return:
+    '''
+
+    # Number of images. Used when printing the progress.
+    source_files = [item for item in helpers.find_files(audio_path, pattern=pattern)]
+    num_files = len(source_files)
+
+    # Iterate over all the image-paths and class-labels.
+    print()
+    print('Started parsing to Numpy arrays')
+    i = 0
+    for file_path in source_files:
+        # Print the percentage-progress.
+        helpers.print_progress(count=i, total=num_files - 1)
+        i += 1
+
+        if size and i > size:
+            break
+
+        speaker_id = file_path.split('/')[-3]
+        pcm = wav_to_pcm(file_path).audio
+        pcm = crop_pcm(pcm, sample_rate=16000)
+        signals = tf.reshape(pcm, [1, -1])
+
+        # Step 1 : signals->stfts
+        # `stfts` is a complex64 Tensor representing the Short-time Fourier Transform of
+        # each signal in `signals`. Its shape is [batch_size, ?, fft_unique_bins]
+        # where fft_unique_bins = fft_length // 2 + 1 = 513.
+        stfts = pcm_to_stft(signals)
+
+        # Step2 : stfts->magnitude_spectrograms
+        # An energy spectrogram is the magnitude of the complex-valued STFT.
+        # A float32 Tensor of shape [batch_size, ?, 513].
+        # Step 3 : magnitude_spectrograms->mel_spectrograms
+        # Warp the linear-scale, magnitude spectrograms into the mel-scale.
+        mel_spectrograms = stft_to_mel_spec(stfts)
+
+        # Step 4 : mel_spectrograms->log_mel_spectrograms
+        log_offset = 1e-6
+        log_mel_spectrograms = tf.math.log(mel_spectrograms + log_offset)
+
+        # Step 5 : log_mel_spectrograms->mfccs
+        # Keep the first `num_mfccs` MFCCs.
+        spectrogram = tf.signal.mfccs_from_log_mel_spectrograms(
+            log_mel_spectrograms)[..., :num_mfcc]
+
+        spect = signals.numpy()
+        if spec_format == SpecFormat.STFT:
+            spect = stfts
+        elif spec_format == SpecFormat.MEL_SPEC:
+            spect = mel_spectrograms
+        elif spec_format == SpecFormat.LOG_MEL_SPEC:
+            spect = log_mel_spectrograms
+        elif spec_format == SpecFormat.MFCC:
+            spect = spectrogram
+
+        if not spec_format == SpecFormat.PCM:
+            x, y, z = None, None, None
+            x = max(spect.shape)
+            if len(spect.shape) > 1:
+                z = min(spect.shape)
+
+            if len(spect.shape) == 3:
+                set_dif = set(spect.shape).difference(set([x, z]))
+                y = set_dif.pop() if len(set_dif) else x
+
+            spect = np.reshape(np.array(spect), (x, y, z))
+
+            if spect.shape[0] < spec_shape[0] or spect.shape[1] < spec_shape[1]:
+                continue
+
+            spect = spect[:spec_shape[0], :spec_shape[1], :spec_shape[2]]
+
+        result_file = file_path.replace(audio_path, out_path).replace('.wav', '.npy')
+        dir_path = '/'.join(result_file.split('/')[:len(result_file.split('/')) - 1])
+        helpers.create_dir(dir_path)
+        np.save(result_file, spect)
