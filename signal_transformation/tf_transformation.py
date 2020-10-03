@@ -375,4 +375,7 @@ def wav_to_numpy_arrays(
         result_file = file_path.replace(audio_path, out_path).replace('.wav', '.npy')
         dir_path = '/'.join(result_file.split('/')[:len(result_file.split('/')) - 1])
         helpers.create_dir(dir_path)
+
+        spect = spect.astype(float)
+
         np.save(result_file, spect)

@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from itertools import permutations
 import pickle
 from pydub import AudioSegment
@@ -189,3 +190,31 @@ def mp3_to_wav(input_file, output_file, channels=1):
         )
     except:
         print('Can not transform mp3 to wav!')
+
+
+def clock():
+    try:
+        return time.perf_counter()  # Python 3
+    except:
+        return time.clock() # Python 2
+
+
+class Timer(object):
+    # Begin of `with` block
+    def __enter__(self):
+        self.start_time = clock()
+        self.end_time = None
+        return self
+
+    # End of `with` block
+    def __exit__(self, exc_type, exc_value, tb):
+        self.end_time = clock()
+
+    def elapsed_time(self):
+        """Return elapsed time in seconds"""
+        if self.end_time is None:
+            # still running
+            return clock() - self.start_time
+        else:
+            return self.end_time - self.start_time
+
