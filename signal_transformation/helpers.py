@@ -201,14 +201,24 @@ def clock():
 
 class Timer(object):
     # Begin of `with` block
-    def __enter__(self):
+    def __enter__(self, granularity='s'):
+        '''
+        :param granularity: can be s - seconds, m - minuts, h - hours
+        :return:
+        '''
+        self.granularity = granularity
         self.start_time = clock()
         self.end_time = None
         return self
 
     # End of `with` block
     def __exit__(self, exc_type, exc_value, tb):
-        self.end_time = clock()
+        if self.granularity == 'm':
+            self.end_time = clock()/60
+        elif self.granularity == 'h':
+            self.end_time = (clock()/60)/60
+        else:
+            self.end_time = clock()
 
     def elapsed_time(self):
         """Return elapsed time in seconds"""
