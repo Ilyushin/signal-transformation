@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import shutil
 from itertools import permutations
 import pickle
 from pydub import AudioSegment
@@ -45,6 +46,14 @@ def find_files(directory, pattern=['.wav']):
 def create_dir(dir_path):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
+
+
+def remove_dir(dir_path):
+    if os.path.exists(dir_path):
+        try:
+            shutil.rmtree(dir_path)
+        except OSError as e:
+            print("Error: %s : %s" % (dir_path, e.strerror))
 
 
 def create_overlapping_signal(signal1, signal2, read=False):
@@ -196,7 +205,7 @@ def clock():
     try:
         return time.perf_counter()  # Python 3
     except:
-        return time.clock() # Python 2
+        return time.clock()  # Python 2
 
 
 class Timer(object):
@@ -214,9 +223,9 @@ class Timer(object):
     # End of `with` block
     def __exit__(self, exc_type, exc_value, tb):
         if self.granularity == 'm':
-            self.end_time = clock()/60
+            self.end_time = clock() / 60
         elif self.granularity == 'h':
-            self.end_time = (clock()/60)/60
+            self.end_time = (clock() / 60) / 60
         else:
             self.end_time = clock()
 
@@ -227,4 +236,3 @@ class Timer(object):
             return clock() - self.start_time
         else:
             return self.end_time - self.start_time
-
