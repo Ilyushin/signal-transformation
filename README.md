@@ -9,7 +9,7 @@ pip3 install signal-transformation
 1) Transform wav files to PCM and than save them to tf_records
     ```python
     import tensorflow as tf
-    from signal_transformation import tf_transformation
+    from signal_transformation.voice import tf_transformation
     
     
     source_path = '/path/to/wav/files'
