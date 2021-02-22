@@ -10,7 +10,7 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="signal_transformation",
-    version="2.2.0",
+    version="2.2.1",
     author="Eugene Ilyushin",
     author_email="eugene.ilyushin@gmail.com",
     description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
