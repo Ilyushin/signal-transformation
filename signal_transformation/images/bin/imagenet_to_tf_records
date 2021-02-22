@@ -25,7 +25,7 @@ Once you have all the above libraries setup, you should register on the
 ImageNet .tar files. It should be extracted and provided in the format:
 - Training images: train/n03062245/n03062245_4620.JPEG
 - Validation Images: validation/ILSVRC2012_val_00000001.JPEG
-- Validation Labels: synset_labels.txt
+- Validation Labels: ILSVRC2012_validation_ground_truth.txt
 
 To run the script to preprocess the raw dataset as TFRecords and upload to gcs,
 run the following command:

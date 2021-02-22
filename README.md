@@ -6,6 +6,7 @@ Helps to transform signal data like speech into different representations using 
 pip3 install signal-transformation
 ```
 
+## Voice
 1) Transform wav files to PCM and than save them to tf_records
     ```python
     import tensorflow as tf
@@ -42,3 +43,9 @@ pip3 install signal-transformation
     )
     
     ```
+   
+## Images
+1) Imagenet dataset to TensorFlow records
+```commandline
+imagenet_to_tf_records --mode="grayscale" --train_data_dirs "/datasets/images/imagenet/train_1/raw /datasets/images/imagenet/train_2/raw" --validation_data_dir /datasets/images/imagenet/validation --validation_labels_file /datasets/images/imagenet/ILSVRC2012_devkit_t12/data/ILSVRC2012_validation_ground_truth.txt --output_dir /datasets/images/imagenet/tf_records 
+```
