@@ -426,7 +426,7 @@ def convert_to_tf_records(
         filenames=validation_files,
         synsets=validation_synsets,
         labels=labels,
-        utput_directory=os.path.join(output_dir, 'validation'),
+        output_directory=os.path.join(output_dir, 'validation'),
         prefix='validation',
         num_shards=VALIDATION_SHARDS)
 
