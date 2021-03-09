@@ -373,9 +373,7 @@ def convert_to_tf_records(
         for next_dir in list_dirs:
             for file_path in helpers.find_files(next_dir, pattern=pattern):
                 files.append(file_path)
-                synsets.append(
-                    os.path.basename(file_path).split('_')[0]
-                )
+                synsets.append(os.path.basename(os.path.dirname(file_path)))
 
         return files, synsets
 

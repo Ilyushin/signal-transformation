@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import shutil
+import subprocess
 from itertools import permutations
 import pickle
 from pydub import AudioSegment
@@ -236,3 +237,16 @@ class Timer(object):
             return clock() - self.start_time
         else:
             return self.end_time - self.start_time
+
+
+def run_cmd(args_list):
+    """
+    run linux commands
+    """
+    # import subprocess
+    print('Running system command: {0}'.format(' '.join(args_list)))
+    proc = subprocess.Popen(args_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    s_output, s_err = proc.communicate()
+    s_return = proc.returncode
+
+    return s_return, s_output, s_err
