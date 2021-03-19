@@ -290,6 +290,10 @@ def parse_chunk(chunk_files: pd.DataFrame,
     writer.close()
 
 
+# def prase_sub_df():
+
+
+
 def wav_to_tf_records(metadata=None,
                       sample_rate=16000,
                       output_dir=None,
@@ -316,7 +320,6 @@ def wav_to_tf_records(metadata=None,
     chunksize = num_files // num_shards
 
     # Iterate over all the image-paths and class-labels.
-    print()
     print('Started parsing to TFRecord')
     for shard in range(num_shards):
         chunk_files = metadata[shard * chunksize: (shard + 1) * chunksize]
