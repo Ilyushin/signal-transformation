@@ -57,6 +57,14 @@ def remove_dir(dir_path):
             print("Error: %s : %s" % (dir_path, e.strerror))
 
 
+def remove_file(file_path):
+    if os.path.isfile(file_path):
+        try:
+            os.remove(file_path)
+        except OSError as e:
+            print("Error: %s : %s" % (file_path, e.strerror))
+
+
 def create_overlapping_signal(signal1, signal2, read=False):
     '''
     Mix two signals in one
