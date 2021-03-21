@@ -255,7 +255,7 @@ def parse_chunk(chunk_files: pd.DataFrame,
     '''
     Covert a chunk of files to tf records
     :param chunk_files:
-    :param sample_rate:
+    :param sample_rate:l
     :param output_file:
     :param spec_format:
     :param num_mfcc:
@@ -264,7 +264,7 @@ def parse_chunk(chunk_files: pd.DataFrame,
     '''
 
     writer = tf.io.TFRecordWriter(output_file)
-    for file_path, label in zip(chunk_files.file_path, chunk_files.label):
+    for file_path, label, class_id in zip(chunk_files.file_path, chunk_files.label, chunk_files.class_id):
         spect = parse_wav(file_path, sample_rate, num_mfcc, spec_format, spec_shape)
 
         if spect is None:
@@ -274,6 +274,7 @@ def parse_chunk(chunk_files: pd.DataFrame,
         data = {
             'spectrogram': wrap_float(spect.flatten()),
             'label': wrap_int64(label),
+            'class_id': wrap_int64(class_id),
             'height': wrap_int64(spect.shape[0] if len(spect.shape) >= 1 else 0),
             'width': wrap_int64(spect.shape[1] if len(spect.shape) >= 2 else 0),
             'channels': wrap_int64(spect.shape[2] if len(spect.shape) >= 3 else 0)
@@ -291,7 +292,6 @@ def parse_chunk(chunk_files: pd.DataFrame,
 
 
 # def prase_sub_df():
-
 
 
 def wav_to_tf_records(metadata=None,

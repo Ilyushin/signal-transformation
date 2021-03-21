@@ -262,26 +262,36 @@ def run_cmd(args_list):
     return s_return, s_output, s_err
 
 
-def voxceleb_files_to_metadata(dev_files_path: str, test_files_path: str, otput_file_path: str):
+def voxceleb_files_to_metadata(files_dir: str, part_name: str, otput_file_path: str):
     """
-    Convert VoxCeleb 1 dev and test files to a DataFrame with metadata.
-    :param dev_files_path:
-    :param test_files_path:
+    Convert VoxCeleb files to a DataFrame with metadata.
+    :param files_dir:
+    :param part_name:
     :param otput_file_path:
     :return:
     """
-    dict_metadata = {'file_path': [], 'label': [], 'len_sec': [], 'type': []}
+    dict_metadata = {'file_path': [], 'label': [], 'class_id': [], 'len_sec': [], 'type': []}
 
     def files_to_metadata(gen_files, type_part: str):
+        class_id = 0
+        dict_label_id = {}
+
         for file_path in gen_files:
             dict_metadata['file_path'].append(file_path)
-            dict_metadata['label'].append(int(file_path.split('/')[-3].replace('id', '')))
+            label = int(file_path.split('/')[-3].replace('id', ''))
+            dict_metadata['label'].append(label)
             dict_metadata['len_sec'].append(librosa.get_duration(filename=file_path))
             dict_metadata['type'].append(type_part)
 
-    files_to_metadata(find_files(dev_files_path, pattern=['.wav']), 'dev')
-    files_to_metadata(find_files(test_files_path, pattern=['.wav']), 'test')
+            if label in dict_label_id:
+                dict_metadata['class_id'].append(dict_label_id[label])
+            else:
+                dict_label_id[label] = class_id
+                dict_metadata['class_id'].append(dict_label_id[label])
+                class_id += 1
+
+    files_to_metadata(find_files(files_dir, pattern=['.wav']), part_name)
 
     df_vox1 = pd.DataFrame(data=dict_metadata)
-    df_vox1.to_parquet(otput_file_path, compression='gzip')
 
+    df_vox1.to_parquet(otput_file_path, compression='gzip')

@@ -24,14 +24,14 @@ from absl import logging
 from signal_transformation import helpers
 
 flags.DEFINE_string(
-    'dev_dir',
+    'files_dir',
     None,
-    'Path to a directory with a dev part of the files'
+    'Path to a directory with files'
 )
 flags.DEFINE_string(
-    'test_dir',
+    'part_name',
     None,
-    'Path to a directory with a test part of the files'
+    'A name of the files part'
 )
 flags.DEFINE_string(
     'output_file',
@@ -43,10 +43,10 @@ FLAGS = flags.FLAGS
 
 
 def main(_):
-    if FLAGS.dev_dir is None:
-        raise AssertionError('Need to specify a path to a directory with a dev part of the files.')
+    if FLAGS.files_dir is None:
+        raise AssertionError('Need to specify a path to a directory with files.')
 
-    helpers.voxceleb_files_to_metadata(FLAGS.dev_dir, FLAGS.test_dir, FLAGS.output_file)
+    helpers.voxceleb_files_to_metadata(FLAGS.files_dir, FLAGS.part_name, FLAGS.output_file)
 
     logging.info('The file with the metadata was created.')
 
