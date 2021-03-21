@@ -25,7 +25,7 @@ from absl import app
 from absl import flags
 from absl import logging
 
-from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpecFormat
+from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpectFormat
 
 flags.DEFINE_string(
     'metadata_path',
@@ -70,25 +70,25 @@ def main(_):
     if FLAGS.metadata_path is None:
         raise AssertionError('Need to specify a path to the metadata file.')
 
-    spec_format = None
+    spect_format = None
     if FLAGS.spect_format == '1':
-        spec_format = SpecFormat.PCM
+        spect_format = SpectFormat.PCM
     elif FLAGS.spect_format == '2':
-        spec_format = SpecFormat.STFT
+        spect_format = SpectFormat.STFT
     elif FLAGS.spect_format == '3':
-        spec_format = SpecFormat.MAGNITUDE
+        spect_format = SpectFormat.MAGNITUDE
     elif FLAGS.spect_format == '4':
-        spec_format = SpecFormat.MEL_SPEC
+        spect_format = SpectFormat.MEL_SPEC
     elif FLAGS.spect_format == '5':
-        spec_format = SpecFormat.LOG_MEL_SPEC
+        spect_format = SpectFormat.LOG_MEL_SPEC
 
     metadata = pd.read_parquet(FLAGS.metadata_path)
     wav_to_tf_records(metadata=metadata,
                       sample_rate=FLAGS.sample_rate,
                       output_dir=FLAGS.output_dir,
-                      spec_format=spec_format,
+                      spec_format=spect_format,
                       num_mfcc=FLAGS.num_mfcc,
-                      spec_shape=FLAGS.spect_shape,
+                      spec_shape=[int(item) for item in FLAGS.spect_shape],
                       num_shards=FLAGS.num_shards)
 
 

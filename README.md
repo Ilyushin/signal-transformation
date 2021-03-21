@@ -21,7 +21,7 @@ Mantains following types of output formats of the voice:
 1) Transform wav files to needed format and then save them to tf_records
     ```python
     import pandas as pd
-    from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpecFormat
+    from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpectFormat
     
     
     metadata_path = '/path/to/parquet/file'
@@ -32,7 +32,7 @@ Mantains following types of output formats of the voice:
     wav_to_tf_records(
         metadata=metadata,
         output_dir=output_dir,
-        spec_format=SpecFormat.MAGNITUDE
+        spec_format=SpectFormat.MAGNITUDE
     )
     
     ```
@@ -40,7 +40,7 @@ Mantains following types of output formats of the voice:
    Or use as script
 
    ```commandline
-   wav_to_tf_records --metadata_path="./vox1_metadata.gzip" --spec_format=3 --sample_rate=16000 --num_mfcc=13 --spect_shape=[300, 200, 1] --num_shards=512 --output_dir="/dataset/tf_records"
+   wav_to_tf_records --metadata_path="./vox1_metadata.gzip" --spect_format=3 --sample_rate=16000 --num_mfcc=13 --spect_shape=[300, 200, 1] --num_shards=512 --output_dir="/dataset/tf_records"
    ```
 
 3) Example of creating a metadata file of VoxCeleb 1

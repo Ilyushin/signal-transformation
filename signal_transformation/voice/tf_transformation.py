@@ -14,7 +14,7 @@ import tensorflow as tf
 import signal_transformation.helpers as helpers
 
 
-class SpecFormat(Enum):
+class SpectFormat(Enum):
     '''
     Types of spectrogram's formats
     '''
@@ -175,7 +175,7 @@ def crop_pcm(value, sample_rate=16000, time=5):
 def parse_wav(file_path: str,
               sample_rate: int,
               num_mfcc: int,
-              spec_format: SpecFormat,
+              spec_format: SpectFormat,
               result_shape: Tuple[int, int, int]):
     '''
     Parse a wav file in an appropriate format
@@ -215,18 +215,18 @@ def parse_wav(file_path: str,
         log_mel_spectrograms)[..., :num_mfcc]
 
     spect = signals.numpy()
-    if spec_format == SpecFormat.STFT:
+    if spec_format == SpectFormat.STFT:
         spect = stfts
-    elif spec_format == SpecFormat.MAGNITUDE:
+    elif spec_format == SpectFormat.MAGNITUDE:
         spect = magnitude_spectrograms
-    elif spec_format == SpecFormat.MEL_SPEC:
+    elif spec_format == SpectFormat.MEL_SPEC:
         spect = mel_spectrograms
-    elif spec_format == SpecFormat.LOG_MEL_SPEC:
+    elif spec_format == SpectFormat.LOG_MEL_SPEC:
         spect = log_mel_spectrograms
-    elif spec_format == SpecFormat.MFCC:
+    elif spec_format == SpectFormat.MFCC:
         spect = spectrogram
 
-    if not spec_format == SpecFormat.PCM:
+    if not spec_format == SpectFormat.PCM:
         x, y, z = None, None, None
         x = max(spect.shape)
         if len(spect.shape) > 1:
@@ -249,7 +249,7 @@ def parse_wav(file_path: str,
 def parse_chunk(chunk_files: pd.DataFrame,
                 sample_rate=16000,
                 output_file=None,
-                spec_format=SpecFormat.PCM,
+                spec_format=SpectFormat.PCM,
                 num_mfcc=13,
                 spec_shape=(300, 200, 1)):
     '''
@@ -297,7 +297,7 @@ def parse_chunk(chunk_files: pd.DataFrame,
 def wav_to_tf_records(metadata=None,
                       sample_rate=16000,
                       output_dir=None,
-                      spec_format=SpecFormat.PCM,
+                      spec_format=SpectFormat.PCM,
                       num_mfcc=13,
                       spec_shape=(300, 200, 1),
                       num_shards=512):
@@ -335,7 +335,7 @@ def wav_to_numpy_arrays(
         label=None,
         sample_rate=16000,
         out_path=None,
-        spec_format=SpecFormat.PCM,
+        spec_format=SpectFormat.PCM,
         num_mfcc=13,
         spec_shape=(300, 200, 1),
         pattern=['.wav', ],
