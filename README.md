@@ -21,7 +21,6 @@ Mantains following types of output formats of the voice:
 1) Transform wav files to needed format and then save them to tf_records
     ```python
     import pandas as pd
-    import tensorflow as tf
     from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpecFormat
     
     
@@ -37,19 +36,28 @@ Mantains following types of output formats of the voice:
     )
     
     ```
-   
-   Or use as script:
+
+   Or use as script
+
    ```commandline
-   python3 wav_to_tf_records --metadata_path="./vox1_metadata.gzip" --spec_format=3 --sample_rate=16000 --num_mfcc=13 --spect_shape=[300, 200, 1] --num_shards=512 --output_dir="/dataset/tf_records"
+   wav_to_tf_records --metadata_path="./vox1_metadata.gzip" --spec_format=3 --sample_rate=16000 --num_mfcc=13 --spect_shape=[300, 200, 1] --num_shards=512 --output_dir="/dataset/tf_records"
    ```
 
-2) Create overlapping signals dataset
+3) Example of creating a metadata file of VoxCeleb 1
+   ```python
+   from signal_transformation import helpers
+   
+   
+   helpers.voxceleb_files_to_metadata('dev_files_path', 'test_files_path', 'vox1_metadata.gzip')
+   ```
+
+4) Create overlapping signals dataset
     ```python
     from signal_transformation import helpers
     
     
-    source_path = '/path/to/wav/files'
-    result_path = '/output/directory'
+    input_folder = '/path/to/wav/files'
+    output_folder = '/output/directory'
     
     result = helpers.prepare_data(
         input_folder,

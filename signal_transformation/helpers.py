@@ -6,6 +6,8 @@ import subprocess
 from itertools import permutations
 import pickle
 from pydub import AudioSegment
+import librosa
+import pandas as pd
 
 
 def print_progress(count, total):
@@ -258,3 +260,28 @@ def run_cmd(args_list):
     s_return = proc.returncode
 
     return s_return, s_output, s_err
+
+
+def voxceleb_files_to_metadata(dev_files_path: str, test_files_path: str, otput_file_path: str):
+    """
+    Convert VoxCeleb 1 dev and test files to a DataFrame with metadata.
+    :param dev_files_path:
+    :param test_files_path:
+    :param otput_file_path:
+    :return:
+    """
+    dict_metadata = {'file_path': [], 'label': [], 'len_sec': [], 'type': []}
+
+    def files_to_metadata(gen_files, type_part: str):
+        for file_path in gen_files:
+            dict_metadata['file_path'].append(file_path)
+            dict_metadata['label'].append(int(file_path.split('/')[-3].replace('id', '')))
+            dict_metadata['len_sec'].append(librosa.get_duration(filename=file_path))
+            dict_metadata['type'].append(type_part)
+
+    files_to_metadata(find_files(dev_files_path, pattern=['.wav']), 'dev')
+    files_to_metadata(find_files(test_files_path, pattern=['.wav']), 'test')
+
+    df_vox1 = pd.DataFrame(data=dict_metadata)
+    df_vox1.to_parquet(otput_file_path, compression='gzip')
+

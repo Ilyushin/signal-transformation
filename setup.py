@@ -10,7 +10,7 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="signal_transformation",
-    version="2.3.0",
+    version="2.3.1",
     author="Eugene Ilyushin",
     author_email="eugene.ilyushin@gmail.com",
     description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
@@ -20,7 +20,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     scripts=[
         'signal_transformation/images/bin/imagenet_to_tf_records',
-        'signal_transformation/voice/bin/wav_to_tf_records'
+        'signal_transformation/voice/bin/wav_to_tf_records',
+        'signal_transformation/voice/bin/vox_to_metadata'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

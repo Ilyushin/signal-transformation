@@ -1,0 +1,56 @@
+#!/usr/bin/python3
+
+r"""Script to convert VoxCeleb files to a DataFrame with metadata.
+
+To run the script setup a virtualenv with the following libraries installed.
+- `tensorflow`: Install with `pip3 install tensorflow`
+
+To run the script to extract metadata from VoxCeleb datasets,
+run the following command:
+
+```
+vox_to_metadata \
+  --dev_dir="./vox/dev" \
+  --test_dir="./vox/test" \
+  --output_file="vox_metadata.gzip"
+```
+"""
+
+import pandas as pd
+from absl import app
+from absl import flags
+from absl import logging
+
+from signal_transformation import helpers
+
+flags.DEFINE_string(
+    'dev_dir',
+    None,
+    'Path to a directory with a dev part of the files'
+)
+flags.DEFINE_string(
+    'test_dir',
+    None,
+    'Path to a directory with a test part of the files'
+)
+flags.DEFINE_string(
+    'output_file',
+    'vox_metadata.gzip',
+    'Path to an output parquet file with the metadata.'
+)
+
+FLAGS = flags.FLAGS
+
+
+def main(_):
+    if FLAGS.dev_dir is None:
+        raise AssertionError('Need to specify a path to a directory with a dev part of the files.')
+
+    helpers.voxceleb_files_to_metadata(FLAGS.dev_dir, FLAGS.test_dir, FLAGS.output_file)
+
+    logging.info('The file with the metadata was created.')
+
+
+if __name__ == '__main__':
+    logging.set_verbosity(logging.INFO)
+    app.run(main)
