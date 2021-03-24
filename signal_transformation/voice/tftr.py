@@ -11,6 +11,7 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import tensorflow.experimental.numpy as tnp
 import signal_transformation.helpers as helpers
 
 
@@ -264,7 +265,8 @@ def parse_chunk(chunk_files: pd.DataFrame,
     '''
 
     writer = tf.io.TFRecordWriter(output_file)
-    for file_path, label, class_id in zip(chunk_files.file_path, chunk_files.label, chunk_files.class_id):
+    for file_path, label, class_id in zip(chunk_files.file_path, chunk_files.label,
+                                          chunk_files.class_id):
         spect = parse_wav(file_path, sample_rate, num_mfcc, spec_format, spec_shape)
 
         if spect is None:
@@ -272,7 +274,7 @@ def parse_chunk(chunk_files: pd.DataFrame,
 
         # Create a dict with the data we want to save
         data = {
-            'spectrogram': wrap_float(spect.flatten()),
+            'spectrogram': wrap_bytes(spect.flatten().tostring()),
             'label': wrap_int64(label),
             'class_id': wrap_int64(class_id),
             'height': wrap_int64(spect.shape[0] if len(spect.shape) >= 1 else 0),
@@ -330,17 +332,16 @@ def wav_to_tf_records(metadata=None,
         parse_chunk(chunk_files, sample_rate, output_file, spec_format, num_mfcc, spec_shape)
 
 
-def wav_to_numpy_arrays(
-        audio_path=None,
-        label=None,
-        sample_rate=16000,
-        out_path=None,
-        spec_format=SpectFormat.PCM,
-        num_mfcc=13,
-        spec_shape=(300, 200, 1),
-        pattern=['.wav', ],
-        size=None
-):
+def wav_to_numpy_arrays(audio_path=None,
+                        label=None,
+                        sample_rate=16000,
+                        out_path=None,
+                        spec_format=SpectFormat.PCM,
+                        num_mfcc=13,
+                        spec_shape=(300, 200, 1),
+                        pattern=['.wav', ],
+                        size=None
+                        ):
     '''
     Convert wav files to Numpy arrays
     :param audio_path: Path to wav files
@@ -384,3 +385,43 @@ def wav_to_numpy_arrays(
         spect = spect.astype(float)
 
         np.save(result_file, spect)
+
+
+def parse_vox_tf_example(tf_example: tf.train.Example,
+                         normalize=True,
+                         to_categorical=False,
+                         num_classes=0):
+    """
+    Parse a TF example of VoxCeleb TF record
+    :param num_classes:
+    :param to_categorical:
+    :param normalize:
+    :param tf_example:
+    :return:
+    """
+
+    feature_description = {
+        'spectrogram': tf.io.FixedLenFeature([], tf.string),
+        'label': tf.io.FixedLenFeature([], tf.int64),
+        'class_id': tf.io.FixedLenFeature([], tf.int64),
+        'height': tf.io.FixedLenFeature([], tf.int64),
+        'width': tf.io.FixedLenFeature([], tf.int64),
+        'channels': tf.io.FixedLenFeature([], tf.int64),
+    }
+
+    parsed_example = tf.io.parse_single_example(tf_example, feature_description)
+    spect = tf.reshape(
+        tf.io.decode_raw(parsed_example['spectrogram'], tf.float32),
+        [parsed_example['height'], parsed_example['width'], parsed_example['channels']]
+    )
+    y = parsed_example['class_id']
+
+    if normalize:
+        mean = tnp.mean(spect, dtype=tf.float32, keepdims=True)
+        std = tnp.std(spect, 0, keepdims=True)
+        spect = (spect - mean) / (std + 1e-5)
+
+    if to_categorical and num_classes > 0:
+        y = tf.one_hot(y, num_classes)
+
+    return spect, y

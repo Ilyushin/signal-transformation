@@ -21,7 +21,7 @@ Mantains following types of output formats of the voice:
 1) Transform wav files to needed format and then save them to tf_records
     ```python
     import pandas as pd
-    from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpectFormat    
+    from signal_transformation.voice.tftr import wav_to_tf_records, SpectFormat    
     
     metadata_path = '/path/to/parquet/file'
     output_dir = '/output/directory'
@@ -47,6 +47,7 @@ Mantains following types of output formats of the voice:
    
    helpers.voxceleb_files_to_metadata('files_dir', 'dev', 'vox1_metadata.gzip')
    ```
+
 
 4) Create overlapping signals dataset
     ```python

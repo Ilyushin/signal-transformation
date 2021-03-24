@@ -25,7 +25,7 @@ from absl import app
 from absl import flags
 from absl import logging
 
-from signal_transformation.voice.tf_transformation import wav_to_tf_records, SpectFormat
+from signal_transformation.voice.tftr import wav_to_tf_records, SpectFormat
 
 flags.DEFINE_string(
     'metadata_path',
