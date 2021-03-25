@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/signal-transformation.svg)](https://badge.fury.io/py/signal-transformation)
 
-Helps to transform signal data like speech into different representations using TensorFlow API.
+Helps to transform signal data like speech into different representations using TensorFlow 2 API.
 
 ```bash
 pip3 install signal-transformation
