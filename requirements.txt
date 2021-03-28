@@ -1,10 +1,10 @@
 # tensorflow
-numpy~=1.19.5
-pydub~=0.24.1
+numpy
+pydub
 pylint
-librosa~=0.8.0
+librosa
 ffmpeg
-webrtcvad~=2.0.10
-setuptools~=49.2.1
-pandas~=1.1.4
+webrtcvad
+setuptools
+pandas
 absl-py
