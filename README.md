@@ -38,7 +38,7 @@ Mantains following types of output formats of the voice:
    Or use as script
 
    ```commandline
-   wav_to_tf_records --metadata_path="./vox1_metadata.gzip" --spect_format=3 --sample_rate=16000 --num_mfcc=13 --spect_shape=[300, 200, 1] --num_shards=512 --output_dir="/dataset/tf_records"
+   wav_to_tf_records --metadata_path="./vox1_metadata.gzip" --spect_format=3 --sample_rate=16000 --num_mfcc=13 --spect_shape="300, 200, 1" --num_shards=512 --output_dir="/dataset/tf_records"
    ```
 
 3) Example of creating a metadata file of VoxCeleb 1

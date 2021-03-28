@@ -14,7 +14,7 @@ python3 wav_to_tf_records \
   --spec_format=3 \
   --sample_rate=16000 \
   --num_mfcc=13 \
-  --spect_shape=[300, 200, 1] \
+  --spect_shape="300, 200, 1" \
   --num_shards=512 \
   --output_dir="/dataset/tf_records"
 ```
