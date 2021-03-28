@@ -47,7 +47,11 @@ Mantains following types of output formats of the voice:
    
    helpers.voxceleb_files_to_metadata('files_dir', 'dev', 'vox1_metadata.gzip')
    ```
-
+   
+   Or use as a script
+   ```commandline
+   vox_to_metadata --files_dir="/vox2/audio/dev/wav/" --part_name="dev" --output_file="/vox2/audio/dev/vox2_wav_metadata.gzip"
+   ```
 
 4) Create overlapping signals dataset
     ```python
