@@ -10,8 +10,8 @@ run the following command:
 
 ```
 vox_to_metadata \
-  --dev_dir="./vox/dev" \
-  --test_dir="./vox/test" \
+  --files_dir="./vox/dev" \
+  --part_name="dev" \
   --output_file="vox_metadata.gzip"
 ```
 """
