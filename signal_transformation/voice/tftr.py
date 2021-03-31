@@ -7,24 +7,12 @@ Transformation of a signal which based on TensorFlow
 import os
 import math
 from typing import Iterable, List, Mapping, Union, Tuple
-from enum import Enum
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorflow.experimental.numpy as tnp
 import signal_transformation.helpers as helpers
-
-
-class SpectFormat(Enum):
-    '''
-    Types of spectrogram's formats
-    '''
-    PCM = 1
-    STFT = 2
-    MAGNITUDE = 3
-    MEL_SPEC = 4
-    LOG_MEL_SPEC = 5
-    MFCC = 6
+from signal_transformation.voice.SpectFormat import SpectFormat
 
 
 def wav_to_pcm(wav_file):
