@@ -262,12 +262,12 @@ def run_cmd(args_list):
     return s_return, s_output, s_err
 
 
-def voxceleb_files_to_metadata(files_dir: str, part_name: str, otput_file_path: str):
+def voxceleb_files_to_metadata(files_dir: str, part_name: str, output_file_path=None):
     """
     Convert VoxCeleb files to a DataFrame with metadata.
     :param files_dir:
     :param part_name:
-    :param otput_file_path:
+    :param output_file_path:
     :return:
     """
     dict_metadata = {'file_path': [], 'label': [], 'class_id': [], 'len_sec': [], 'type': []}
@@ -292,6 +292,9 @@ def voxceleb_files_to_metadata(files_dir: str, part_name: str, otput_file_path: 
 
     files_to_metadata(find_files(files_dir, pattern=['.wav']), part_name)
 
-    df_vox1 = pd.DataFrame(data=dict_metadata)
+    df_vox = pd.DataFrame(data=dict_metadata)
 
-    df_vox1.to_parquet(otput_file_path, compression='gzip')
+    if output_file_path is not None:
+        df_vox.to_parquet(output_file_path, compression='gzip')
+
+    return df_vox

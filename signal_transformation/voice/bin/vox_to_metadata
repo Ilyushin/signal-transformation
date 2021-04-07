@@ -36,7 +36,7 @@ flags.DEFINE_string(
 flags.DEFINE_string(
     'output_file',
     'vox_metadata.gzip',
-    'Path to an output parquet file with the metadata.'
+    'Path to an output parquet file with the metadata. Example: --output_file="./vox_metadata.gzip"'
 )
 
 FLAGS = flags.FLAGS
