@@ -22,7 +22,7 @@ def wav_to_pcm(wav_file):
     :return: PCM
     '''
     raw_audio = tf.io.read_file(wav_file)
-    waveform = tf.audio.decode_wav(
+    waveform, _ = tf.audio.decode_wav(
         raw_audio,
         desired_channels=1
     )

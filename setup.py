@@ -10,11 +10,11 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="signal_transformation",
-    version="2.4.2",
+    version="2.5.0",
     author="Eugene Ilyushin",
     author_email="eugene.ilyushin@gmail.com",
-    description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
-    long_description="The package allows performing a transformation of an audio signal using TensorFlow or LibROSA",
+    description="The package allows performing a transformation of a signal using TensorFlow, Pytorch or LibROSA",
+    long_description="The package allows performing a transformation of a signal using TensorFlow, Pytorch or LibROSA",
     long_description_content_type="text/markdown",
     url="https://github.com/Ilyushin/signal-transformation",
     packages=setuptools.find_packages(),
